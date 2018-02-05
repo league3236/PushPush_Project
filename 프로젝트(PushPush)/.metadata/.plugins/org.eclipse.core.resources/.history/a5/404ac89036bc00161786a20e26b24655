@@ -1,0 +1,156 @@
+package Scenes;
+
+import org.newdawn.slick.Color;
+import org.newdawn.slick.GameContainer;
+import org.newdawn.slick.Graphics;
+import org.newdawn.slick.Image;
+import org.newdawn.slick.Input;
+import org.newdawn.slick.SlickException;
+import org.newdawn.slick.Sound;
+import org.newdawn.slick.gui.TextField;
+import org.newdawn.slick.state.BasicGameState;
+import org.newdawn.slick.state.StateBasedGame;
+
+import Basic.Model;
+
+import org.lwjgl.input.Mouse;
+
+import Main.ProjectMain;
+
+public class MenuScene extends BasicGameState {
+
+	StateBasedGame game;
+	GameContainer gc;
+
+	protected int ID; 
+	
+	Model model = new Model();
+	TextField playerName;
+	boolean name = false;
+	
+	private Image BackGround;//배경화면
+	private Image PushLogo;//손바닥로고
+	private Image PushLogo1;//손바닥로고 반대
+	
+	//음향설정.
+	//public static Sound bg_ex;	//게임 진입 배경음악
+	public static Sound effect;  //효과
+	
+	private int logo_x;//마우스 갖다되면 크기조정하기위해 설정.
+	private int logo_y;//마우스 갖다되면 크기조정하기위해 설정.
+	
+	public MenuScene() {
+		// TODO Auto-generated constructor stub
+	}
+
+	public MenuScene(int id) {
+		// TODO Auto-generated constructor stub
+		
+		this.ID = id;
+	}
+	
+	@Override
+	public void init(GameContainer arg0, StateBasedGame arg1)
+			throws SlickException {
+		// TODO Auto-generated method stub
+		
+		game = arg1;
+		gc = arg0;
+				
+		ProjectMain.bg_music.loop();
+		
+		effect = new Sound("sounds/digitimpact.ogg");
+		
+		BackGround = new Image("rsc/Background.png");//이미지 지정
+		PushLogo = new Image("rsc/PushLogo.png");
+		PushLogo1 = new Image("rsc/PushLogo1.png");	
+		
+		playerName = new TextField(gc, gc.getDefaultFont(), 580, 520, 140, 20);
+		playerName.setMaxLength(15); // Sets the max name length to 15
+	}
+
+	@Override
+	public void render(GameContainer gc, StateBasedGame sbg, Graphics g)
+			throws SlickException {
+		// TODO Auto-generated method stub
+		
+		logo_x=233;//손바닥 로고 초기값.
+		logo_y=282;//손바닥 로고 초기값.
+		
+		
+		model.set_pos_x_y(Mouse.getX(), Mouse.getY());//마우스 위치 지정
+		BackGround.draw(0,0,1300,800);//메뉴 배경화면 뿌려줌.
+		PushLogo.draw(240, 180,logo_x,logo_y);//푸시로고 출력
+		PushLogo1.draw(800, 180,logo_x,logo_y);//푸시로고 좌우바뀐사진 출력
+		
+		g.setColor(Color.white);
+		g.drawString("Copyright of this wallpaper is in Blizzard.", 800, 700);//저작권 글자 출력
+		//g.drawString("x "+model.getPos_x()+"y"+model.getPos_y(), 820, 750);//마우스 좌표띄우기.
+		
+		playerName.setBackgroundColor(Color.white);
+		playerName.setBorderColor(Color.orange);
+		playerName.setTextColor(Color.black);
+		playerName.setCursorVisible(true);
+		playerName.render(gc, g);
+		
+		if((model.getPos_x()>248&&model.getPos_x()<481)&&(model.getPos_y()>330&&model.getPos_y()<612)){
+			PushLogo.drawFlash(240, 180,logo_x+50,logo_y+50);//마우스 갖다댔을때 효과
+		}
+		if((model.getPos_x()>800&&model.getPos_x()<1033)&&(model.getPos_y()>330&&model.getPos_y()<612)){
+			PushLogo1.drawFlash(760, 180,logo_x+50,logo_y+50);//로그 오른쪽 손 마우스 갔다댔을때 flash효과와 커짐.
+		}
+		Input input = gc.getInput();
+		if((model.getPos_x()>597&&model.getPos_x()<700)&&(model.getPos_y()>338&&model.getPos_y()<456)){
+			if(input.isMouseButtonDown(0)){//0은 마우스 왼쪽 클릭의미
+				
+			}
+		}	
+	}
+
+	@Override
+	public void update(GameContainer gc, StateBasedGame sbg, int delta)
+			throws SlickException {
+		// TODO Auto-generated method stub
+		Input input = gc.getInput();//마우스 클릭받기위한 Input
+		
+		if((model.getPos_x()>248&&model.getPos_x()<481)&&(model.getPos_y()>330&&model.getPos_y()<612)){
+			//logo_x+=50;
+			//logo_y+=50;
+			//PushLogo.
+			if(input.isMouseButtonDown(0)){//0은 마우스 왼쪽 클릭의미
+				ProjectMain._name = playerName.getText();
+				effect.play();//눌렀을때 소리
+				ProjectMain.bg_music.stop();	//노래 종료
+				ProjectMain.bg_ex.play();	//다음 노래 재생
+				game.enterState(ProjectMain._Exe0);
+			}
+		}			//왼쪽 로고 눌렀을시 게임화면 이동
+		if((model.getPos_x()>800&&model.getPos_x()<1033)&&(model.getPos_y()>330&&model.getPos_y()<612)){
+			if(input.isMouseButtonDown(0)){//0은 마우스 왼쪽 클릭의미
+				effect.play();
+				ProjectMain.bg_music.stop();	//노래 종료
+				ProjectMain.ranking_bg.play();	//다음 노래 재생
+				game.enterState(ProjectMain._Ranking);
+			}
+		}			//오른쪽 로고 눌렀을시 게임화면 이동
+			
+		
+
+	}
+
+	@Override
+	public int getID() {
+		// TODO Auto-generated method stub
+		return ID;
+	}
+
+	@Override
+	public void keyReleased(int key, char c) {
+		switch(key){
+		case Input.KEY_1:
+			game.enterState(ProjectMain._Play);
+			break;
+		}
+		}
+
+}

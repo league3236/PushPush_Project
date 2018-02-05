@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<qualifiedTypeNameHistroy>
+<fullyQualifiedTypeName name="org.newdawn.slick.Image"/>
+<fullyQualifiedTypeName name="org.lwjgl.input.Mouse"/>
+<fullyQualifiedTypeName name="Scenes.ExeCh1_Scene"/>
+<fullyQualifiedTypeName name="java.lang.System"/>
+<fullyQualifiedTypeName name="Basic.BasicScenes"/>
+<fullyQualifiedTypeName name="org.newdawn.slick.Input"/>
+<fullyQualifiedTypeName name="org.newdawn.slick.Sound"/>
+<fullyQualifiedTypeName name="Scenes.PlayScene1"/>
+<fullyQualifiedTypeName name="javax.swing.JTextField"/>
+<fullyQualifiedTypeName name="javax.swing.JFrame"/>
+<fullyQualifiedTypeName name="Basic.Control"/>
+<fullyQualifiedTypeName name="Basic.Model"/>
+<fullyQualifiedTypeName name="org.newdawn.slick.Music"/>
+<fullyQualifiedTypeName name="ExeScenes.ExeCh1_Scene"/>
+<fullyQualifiedTypeName name="ExeScenes.ExeCh2_Scene"/>
+<fullyQualifiedTypeName name="java.awt.Label"/>
+<fullyQualifiedTypeName name="java.util.Scanner"/>
+<fullyQualifiedTypeName name="org.newdawn.slick.gui.TextField"/>
+<fullyQualifiedTypeName name="Main.ProjectMain"/>
+<fullyQualifiedTypeName name="Scenes.PlayScene0"/>
+<fullyQualifiedTypeName name="ExeScenes.ExeCh0_Scene"/>
+</qualifiedTypeNameHistroy>

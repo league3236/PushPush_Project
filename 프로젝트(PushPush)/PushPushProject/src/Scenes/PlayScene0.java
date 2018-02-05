@@ -1,0 +1,224 @@
+package Scenes;
+
+import org.lwjgl.input.Mouse;
+import org.newdawn.slick.Color;
+import org.newdawn.slick.GameContainer;
+import org.newdawn.slick.Graphics;
+import org.newdawn.slick.SlickException;
+import org.newdawn.slick.Sound;
+import org.newdawn.slick.state.BasicGameState;
+import org.newdawn.slick.state.StateBasedGame;
+
+import Basic.Control;
+import Basic.Model;
+import Main.ProjectMain;
+
+import org.newdawn.slick.Input;
+import org.newdawn.slick.Image;
+
+//먼저 PLAYSCENE을 만들고 추후에 BASICSCENE을 만들어 필요한부분만 상속받아 간단하게고칠 예정.WHY?STAGE나누기 위해서.
+public class PlayScene0 extends BasicGameState {
+	StateBasedGame game;
+	GameContainer gc;
+	
+	protected int ID; // BasicGameState로 들어오기 위한 ID
+	
+	private Control control=new Control();
+	private Model model=new Model(); ;
+	
+	private Image BackSpace;//게임 기본배경
+	private Image Hero; // 게임 메인 케릭터
+	private Image Car; // 화물
+	private Image Enemy;
+	private Image Car_Destination; // 화물 목적지
+	private Image Continue; // herolife가 0이되면 출력
+	private Image mei_Enerzy_0;//에너지 다 떨어졌을때.
+	private Image mei_Enerzy_3;//에너지 최대치 (추후에 애니메이션으로 바꿀예정.)
+	private Image Feel;
+	
+	private Sound mei_feel;//메이 궁 사운드
+	
+	long starttime = System.currentTimeMillis();//게임 시작시간
+	long endtime; //끝나는시간
+
+	long starttime1;//궁극기 시작시간
+	long endtime1; //궁극기끝나는시간
+    
+	int TimePassed;
+	
+    public PlayScene0(){
+		
+	}
+	public PlayScene0(int id){
+		this.ID = id;//ID지정
+	}
+	
+	public void init(GameContainer arg0, StateBasedGame arg1) throws SlickException {
+		game = arg1;
+		gc = arg0;
+		//초기 좌표값지정
+		model.setHero_x_y(790,424);
+		model.setEnemy_x_y(305,200);
+		model.setCar_x_y(730,372);
+		model.setCar_Des_x_y(790,372);
+		model.setMenu_x_y(1100,50);
+		//소리지정
+		mei_feel = new Sound("sounds/mei_feel.wav");
+		//이미지 지정		
+		Hero = new Image("rsc/mei.png");
+		Enemy = new Image("rsc/Liffer1.png");
+		BackSpace = new Image("rsc/BackPlay1.png"); //배경화면
+		
+		Car = new Image("rsc/Logo.png");
+		Car_Destination = new  Image("rsc/Logo_Destination.png");
+		Continue = new Image("rsc/Continue.png");
+		Feel = new Image("rsc/mei_feel.png");
+
+		mei_Enerzy_0 = new Image("rsc/mei_energy_0.png");
+		mei_Enerzy_3 = new Image("rsc/mei_energy_3.png");
+		//이미지 정의 종료
+		TimePassed=0;
+		
+	}
+
+	@Override
+	public void render(GameContainer arg0, StateBasedGame arg1, Graphics g) throws SlickException {
+		// TODO Auto-generated method stub
+		//이미지 관리
+		BackSpace.draw(0,0,ProjectMain._width,ProjectMain._height);//기본 배경출력
+		Car.draw(model.getCar_x(),model.getCar_y(),60,60);//화물 이미지 출력
+		Car_Destination.draw(model.getCar_Des_x(),model.getCar_Des_y(),60,60);//화물 도착지 출력
+		Hero.draw(model.getHero_x(),model.getHero_y(),60,60);//영웅 이미지 출력
+		Enemy.draw(model.getEnemy_x(),model.getEnemy_y(),60,60);//적군 이미지 출력
+		//이미지 끝
+		//메뉴화면 구성넘어가는 부분
+		g.setColor(Color.white);//글자 색상 흰색 지정W
+		g.drawString("STAGE 1", model.getMenu_x(), model.getMenu_y());
+		g.drawString("Your ID : "+ProjectMain._name, model.getMenu_x(), model.getMenu_y()+40);
+		g.drawString("TIME : "+endtime, model.getMenu_x(), model.getMenu_y()+80);
+		g.drawString("SCORE : "+(ProjectMain.score/100), model.getMenu_x(), model.getMenu_y()+120);
+		g.drawString("Life : "+model.getHeroLife(), model.getMenu_x(), model.getMenu_y()+160);
+		if(model.getHeroLife()>=3){mei_Enerzy_3.draw(model.getMenu_x()-15,model.getMenu_y()+220,200,200);}//영웅 체력 3이면 해당 체력이미지 출력
+		if(model.getHeroLife()<=0){mei_Enerzy_0.draw(model.getMenu_x()-15,model.getMenu_y()+220,200,200);}//영웅 체력 1이면 해당 체력이미지 출력
+		//메뉴화면 구성 끝
+		model.set_pos_x_y(Mouse.getX(), Mouse.getY());//마우스 X,Y좌표
+		g.drawString("x "+model.getPos_x()+"y"+model.getPos_y(), model.getMenu_x(), 710);//마우스 좌표 출력 why?(이미지 뿌리기 위해 좌표찾기)
+		g.drawString("Hero_x "+model.getHero_x()+"Hero_y"+model.getHero_y(), model.getMenu_x(), 750);
+		g.drawString("Car_x "+model.getCar_x()+"Car_y"+model.getCar_y(), model.getMenu_x(), 790);
+		
+		if(model.getHeroLife()<=0){
+			Continue.draw(250,200,700,250); //계속하시겠습니까 출력
+			Input input = arg0.getInput(); //키입력받기 Y면 라이프3으로 세팅후 실해 N이면 메뉴화면 되돌아감.
+			if(input.isKeyDown(Input.KEY_Y)){model.setHeroLife(3);}
+			if(input.isKeyDown(Input.KEY_N)){game.enterState(ProjectMain._Menu);}
+		}
+		//궁극기 시전 (적이 얼어 붙음)
+		Input input = arg0.getInput();
+		if(input.isKeyDown(Input.KEY_SPACE)){//space누르면 궁극기 발동
+			mei_feel.play();//메이 궁극기 노래 플레이
+			starttime1=System.currentTimeMillis();
+			model.trueFeel();}//궁극기온
+		if(model.getFeel()){
+			if((endtime1-starttime1)/10<500)//5초동안 적얼림
+			Feel.draw(0,0,ProjectMain._width,ProjectMain._height);//궁극기 그림 출력
+			if((endtime1-starttime1)/10>550){//5.5초뒤에 궁극기 소모
+				model.falseFeel();//궁극기 종료
+		}
+		}			//궁극기 한번만 쓸수있게 하려했으나 프로젝트 보고할때 편의를 위해 제한을 안둠.
+		
+			
+		
+	}
+	@Override
+	public void update(GameContainer arg0, StateBasedGame arg1, int arg2) throws SlickException {
+		
+		// TODO Auto-generated method stub
+		//메인화면 꾸며주기 위한 update
+		//걸린시간 체크
+		if((model.getHeroLife()>0)){
+		endtime = System.currentTimeMillis();//게임시간
+		endtime1 = System.currentTimeMillis();//궁극기 시간
+		endtime = (endtime-starttime)/1000;
+		ProjectMain.score-=endtime/5;}
+		
+		// 메인 케릭터 입력값.
+		// 메인 꾸며주기 끝.
+		// 키입력받기 시작
+		Input input = arg0.getInput();
+		control.controllerPush(input,model);
+		
+	        //피타고라스의 정리 이용하여 부딪히면공이 없어지거나 화물이동할수있도록 설정함.
+	        float Hero_Car = model.Target(model.getHero_x(),model.getHero_y(), model.getCar_x(),model.getCar_y());//영웅과 화물의 현재거리
+	        float Hero_Car_Max = model.Target_Max(25,25);//영웅과 화물의 최대거리
+	       //화물운송 완료
+	        float Car_Des_Car = model.Target(model.getCar_Des_x(),model.getCar_Des_y(),model.getCar_x(),model.getCar_y());//화물과 도착지의 현재거리
+	        float Car_Des_Car_Max = model.Target_Max(25,25);//화물과 도착지간의 최대거리
+	        //적군 컨트롤
+	        control.controller_car_Push(input, model, Hero_Car, Hero_Car_Max);//화물 컨트롤
+	        TimePassed += arg2;
+	        if(TimePassed > 2){
+	        	TimePassed = 0;
+	        	control.controllerEnemy_Push(model);
+	        	
+	        }//적 컨트롤 종료
+	        float Hero_Enemy = model.Target(model.getHero_x(), model.getHero_y(), model.getEnemy_x(), model.getEnemy_y());//영웅과 적의 거리
+	        float Hero_Enemy_Max =model.Target_Max(15, 15);//영웅과 적의 최대 거리
+	        if(Hero_Enemy<Hero_Enemy_Max){//만약 영웅과 적이 만나면
+	        	ProjectMain.score-=500;//점수 제거
+	        	model.setHeroLife(0);
+	        }
+	        
+	        
+	        if(Car_Des_Car<Car_Des_Car_Max){//만약 CAR와 CAR_목적지 닿게되면 CAR가 그자리 대신하게끔 만듬.
+	        	model.setCar_x_y(model.getCar_Des_x(),model.getCar_Des_y());//목적지에 화물이 들어감.
+	        	Car_Destination.getGraphics();//원래잇던 목적지 덮어씌우기
+	        	ProjectMain.play_bg.stop();//플레이음악 중지
+	        	ProjectMain.bg_ex.loop();//설명음악 시작
+	        	game.enterState(ProjectMain._Exe);//다음게임으로 넘어감.
+	        }
+	        //마우스 클릭효과 설정.
+	        //비행기 클릭시 초기 위치로 이동
+	        if((model.getPos_x()>440&&model.getPos_x()<530)&&(model.getPos_y()>37&&model.getPos_y()<69)){
+				if(input.isMouseButtonDown(0)){//0은 마우스 왼쪽 클릭의미
+					model.setHero_x_y(790,424);
+					model.setCar_x_y(730,372);
+				}
+			}
+	        //오른쪽 화살표 클릭시 다음게임 진행
+	        if((model.getPos_x()>344&&model.getPos_x()<410)&&(model.getPos_y()>16&&model.getPos_y()<77)){
+				if(input.isMouseButtonDown(0)){//0은 마우스 왼쪽 클릭의미
+					game.enterState(ProjectMain._Play);//다음게임넘어감.
+				}
+			}
+	        //?메뉴 클릭시 게임안내판으로 넘어감.
+	        if((model.getPos_x()>564&&model.getPos_x()<620)&&(model.getPos_y()>16&&model.getPos_y()<86)){
+				if(input.isMouseButtonDown(0)){//0은 마우스 왼쪽 클릭의미
+					ProjectMain.play_bg.stop();//플레이음악 중지
+		        	ProjectMain.bg_ex.loop();//설명음악 시작
+					game.enterState(ProjectMain._Exe0);//게임안내판으로 넘어감.
+				}
+			}
+	        //맨우측 메뉴클릭시 메인화면으로 이동함.
+	        if((model.getPos_x()>667&&model.getPos_x()<744)&&(model.getPos_y()>10&&model.getPos_y()<80)){
+				if(input.isMouseButtonDown(0)){//0은 마우스 왼쪽 클릭의미
+					ProjectMain.play_bg.stop();//플레이음악 중지
+					ProjectMain.bg_music.loop();//메인노래 진입.
+					game.enterState(ProjectMain._Menu);//메뉴화면으로 넘어감.
+				}
+			}
+
+	}
+
+	public int getID() {
+		// TODO Auto-generated method stub
+		return ID;
+	}
+	//F1키 누르면 바로메인화면 빠져나오게 만들어봄. 추후 변경할 예정.
+	public void keyReleased(int key, char c){
+		switch(key){
+		case Input.KEY_F1:
+			game.enterState(ProjectMain._Menu);
+			break;
+		}
+	}
+}

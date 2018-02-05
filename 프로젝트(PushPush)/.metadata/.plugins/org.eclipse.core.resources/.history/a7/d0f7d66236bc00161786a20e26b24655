@@ -1,0 +1,87 @@
+package Main;
+
+import org.newdawn.slick.AppGameContainer;
+import org.newdawn.slick.GameContainer;
+import org.newdawn.slick.Music;
+import org.newdawn.slick.SlickException;
+import org.newdawn.slick.state.StateBasedGame;
+
+import ExeScenes.ExeCh0_Scene;
+import ExeScenes.ExeCh1_Scene;
+import ExeScenes.ExeCh2_Scene;
+import ExeScenes.Ranking;
+import Scenes.MenuScene;
+import Scenes.PlayScene;
+import Scenes.PlayScene0;
+import Scenes.PlayScene1;
+
+
+public class ProjectMain extends StateBasedGame {
+	public static String _name;
+	public static int score = 1000000; // 총 점수
+	
+	public static final int _width = 1300;//화면넓이
+	public static final int _height = 800;//화면높
+	public static boolean _full = false;
+	//Scene 이동하기 위한 상수 설정.
+	public static final int _Menu = 0;//메뉴 상수6
+	public static final int _Exe0 = 1; //설명 0
+	public static final int _Play0 = 2;//게임플레이0 상수
+	public static final int _Exe = 3;//설명
+	public static final int _Play = 4;//게임플레이 상수
+	public static final int _Exe1 = 5; //설명1
+	public static final int _Play1 = 6;//게임플레이1
+	public static final int _Ranking = 7;
+	//배경음악 설정
+	public static Music bg_music ;//메인 화면 음향
+	public static Music bg_ex;//게임설명화면 음향
+	public static Music play_bg;//게임플레이시 음향.
+	public static Music ranking_bg;//렝킹화면 음향
+
+	public ProjectMain(String name) {
+		super(name);
+		// TODO Auto-generated constructor stub
+	}
+	@Override
+	public void initStatesList(GameContainer arg0) throws SlickException {
+		// TODO Auto-generated method stub
+		//배경음설정.
+		bg_music = new Music("sounds/Menu_bg.wav");
+		bg_ex = new Music("sounds/Anubis_bg.wav");
+		play_bg = new Music("sounds/play_bg.wav"); //게임플레이시 배경음향.
+		
+		addState(new MenuScene(_Menu));//메뉴 추가
+		addState(new ExeCh0_Scene(_Exe0));//플레이 추가
+		addState(new PlayScene0(_Play0));//플레이 추가
+		addState(new ExeCh1_Scene(_Exe));//플레이 추가
+		addState(new PlayScene(_Play));//플레이 추가
+		addState(new ExeCh2_Scene(_Exe1));//플레이 추가
+		addState(new PlayScene1(_Play1));//플레이 추가
+		addState(new Ranking(_Ranking));//플레이 추가
+		
+	}
+
+
+	public static String getName() {
+		// TODO Auto-generated method stub
+		return ProjectMain._name;
+	}
+	/**
+	 * @param args
+	 */
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+
+		try{
+			AppGameContainer appgc;
+			appgc = new AppGameContainer(new ProjectMain("Push Push Game-SH"));//창이름.
+			appgc.setDisplayMode(_width, _height,_full);//width,high,창모드할건지 출력
+			appgc.setTargetFrameRate(100);
+			appgc.start();
+			
+		}catch(SlickException e){
+			e.printStackTrace();//예외 발생시 익셉션 처리.
+		}
+	}
+
+}
